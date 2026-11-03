@@ -5,8 +5,8 @@
 BugRewind investigates **why a test started failing between two commits**, using real test execution
 instead of guesses.
 
-**Status: early development (v0.1, phase 1).** Only `bugrewind replay` is implemented. Everything
-else in the roadmap below is *not* implemented yet.
+**Status: early development (v0.2).** `bugrewind replay` and `bugrewind find` are implemented.
+Everything else in the roadmap below is *not* implemented yet.
 
 ## What works today
 
@@ -23,6 +23,22 @@ head commit, each in its own temporary `git worktree`, and compares the results:
 
 It never reports a pass it did not observe. `regression-reproduced` means the behavior differs
 between the two commits; it does **not** say which change caused it.
+
+### `bugrewind find`
+
+Given a commit where the tests pass (`--good`) and one where they fail (`--bad`, default `HEAD`),
+`find` binary-searches the history in between and reports the **first commit where the tests fail**,
+with its author, message, and the files that changed since its predecessor. It needs only
+about log2(N) test runs for N commits.
+
+```bash
+npm run dev -- find --good v1.2.0 --bad main --file src/auth/session.test.ts --yes
+```
+
+The result is only reported as `culprit-found` when the culprit's predecessor was actually run and
+passed, and the culprit was actually run and failed. If a commit in the way cannot be tested (crash,
+no tests, timeout), the verdict is `inconclusive` with the remaining range. It follows first-parent
+history, assumes the failure appeared once and stayed, and can be misled by flaky tests.
 
 ## Requirements
 
@@ -56,8 +72,8 @@ npm run dev -- replay --base v1.2.0 --head main --test "refreshSession" --json -
 | `--json` | machine-readable output |
 | `--yes` | required: confirms test code from both commits may run on this machine |
 
-Exit codes: `0` no regression observed or fixed, `1` regression reproduced, `2` usage or runtime error,
-`3` inconclusive or already failing.
+Exit codes (both commands): `0` no regression observed (or fixed), `1` regression reproduced / culprit found,
+`2` usage or runtime error, `3` inconclusive or already failing.
 
 ## Safety
 
