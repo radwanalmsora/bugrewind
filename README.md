@@ -1,5 +1,7 @@
 # BugRewind
 
+[![CI](https://github.com/radwanalmsora/bugrewind/actions/workflows/ci.yml/badge.svg)](https://github.com/radwanalmsora/bugrewind/actions/workflows/ci.yml)
+
 > Every bug has a history. Rewind it.
 
 BugRewind investigates **why a test started failing between two commits**, using real test execution
@@ -93,6 +95,10 @@ Exit codes (both commands): `0` no regression observed (or fixed), `1` regressio
 
 Evidence engine and reports, AST-based impact analysis, optional AI analysis (OpenAI/Gemini),
 MCP server, regression-test generation.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
