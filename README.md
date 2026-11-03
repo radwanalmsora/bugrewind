@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/radwanalmsora/bugrewind/actions/workflows/ci.yml/badge.svg)](https://github.com/radwanalmsora/bugrewind/actions/workflows/ci.yml)
 
+[![NPM Version](https://img.shields.io/npm/v/bugrewind?style=flat-square&color=blue)](https://www.npmjs.com/package/bugrewind)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20-green?style=flat-square)](https://nodejs.org)
+
 > Every bug has a history. Rewind it.
 
 BugRewind investigates **why a test started failing between two commits**, using real test execution
@@ -91,6 +95,13 @@ Exit codes (both commands): `0` no regression observed (or fixed), `1` regressio
 - Environment variables, services, and data that tests need are not recreated.
 - Uncommitted changes are not included in either run.
 
+
+## 🔍 How it Works
+
+1. **Isolation:** Creates temporary, isolated `git worktrees` for the baseline and head commits.
+2. **Execution:** Runs your [Vitest](https://vitest.dev) suite independently in both environments.
+3. **Comparison:** Analyzes outcomes and delivers a clear verdict (`regression-reproduced`, `culprit-found`, etc.) without touching your current working directory.
+
 ## Roadmap (not implemented)
 
 Evidence engine and reports, AST-based impact analysis, optional AI analysis (OpenAI/Gemini),
@@ -103,3 +114,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). Changes a
 ## License
 
 MIT
+
+## 🚀 Quick Start (No Installation Required)
+
+You can run BugRewind instantly using `npx`:
+
+```bash
+npx bugrewind replay --base HEAD~1 --head HEAD --file src/my.test.ts --yes
