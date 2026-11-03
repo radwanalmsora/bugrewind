@@ -1,37 +1,49 @@
-import type { FindResult } from '../core/types.ts';
+import type { FindResult } from '../core/types.js';
+import { findModifiedFunctions } from '../analyzer/ast.js';
 
-const short = (sha: string): string => sha.slice(0, 7);
-
-export function formatFindTerminal(res: FindResult): string {
-  const lines: string[] = ['BUGREWIND FIND', ''];
-  lines.push(`Good: ${res.good.ref} (${short(res.good.sha)}): ${res.good.run.status.toUpperCase()}`);
-  lines.push(`Bad:  ${res.bad.ref} (${short(res.bad.sha)}): ${res.bad.run.status.toUpperCase()}`);
-  lines.push(`Commits in range: ${res.candidateCommits}, test runs: ${res.steps.length}`);
-  lines.push('', `Verdict: ${res.verdict}`, res.explanation);
-
-  if (res.culprit) {
-    const c = res.culprit;
-    lines.push('', 'First failing commit:');
-    lines.push(`  ${short(c.sha)}  ${c.subject}`);
-    lines.push(`  author: ${c.author}  date: ${c.date}`);
-    lines.push(`  files changed since ${short(c.parentSha)}:`);
-    for (const f of c.files.slice(0, 20)) lines.push(`    - ${f}`);
-    if (c.files.length > 20) lines.push(`    ... and ${c.files.length - 20} more`);
-    const fails = c.run.failures.slice(0, 5);
-    if (fails.length > 0) {
-      lines.push('  failures:');
-      for (const f of fails) {
-        const first = f.message.split('\n')[0] ?? '';
-        lines.push(`    - ${f.name}${first ? `: ${first}` : ''}`);
-      }
+export function formatFindTerminal(result: FindResult): string {
+    if (result.verdict !== 'culprit-found' || !result.culprit) {
+        return `Verdict: ${result.verdict}\nNo specific culprit commit identified.`;
     }
-  }
 
-  lines.push('', 'Limitations:');
-  for (const l of res.limitations) lines.push(`  - ${l}`);
-  return lines.join('\n');
+    const commit = result.culprit;
+    let report = `Verdict: culprit-found\n`;
+    report += `Culprit Commit: ${commit.sha} (${commit.subject})\n`;
+    report += `Author: ${commit.author}\n`;
+    report += `Files Changed:\n`;
+
+    const allFunctions: string[] = [];
+
+    for (const file of commit.files) {
+        report += ` - ${file}\n`;
+        const funcs = findModifiedFunctions(file);
+        if (funcs.length > 0) {
+            allFunctions.push(...funcs);
+        }
+    }
+
+    if (allFunctions.length > 0) {
+        report += `Suspected Functions (AST Detected):\n`;
+        const uniqueFuncs = Array.from(new Set(allFunctions));
+        for (const fn of uniqueFuncs) {
+            report += ` * ${fn}()\n`;
+        }
+    }
+
+    return report;
 }
 
-export function formatFindJson(res: FindResult): string {
-  return JSON.stringify(res, null, 2);
+export function formatFindJson(result: FindResult): string {
+    const allFunctions: string[] = [];
+    if (result.culprit) {
+        for (const file of result.culprit.files) {
+            const funcs = findModifiedFunctions(file);
+            allFunctions.push(...funcs);
+        }
+    }
+
+    return JSON.stringify({
+        ...result,
+        suspectedFunctions: Array.from(new Set(allFunctions))
+    }, null, 2);
 }
