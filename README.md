@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="./1793728438021.jpg" alt="BugRewind CLI Demo" width="100%" />
-</p>
+![Header Banner](https://capsule-render.vercel.app/api?type=egg&height=300&color=gradient&section=header&reversal=false&text=bugrewind&textBg=false&fontSize=70&fontAlign=50&fontAlignY=43&rotate=0&strokeWidth=0&descSize=20&descAlign=40&descAlignY=47)
 
 # BugRewind
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
